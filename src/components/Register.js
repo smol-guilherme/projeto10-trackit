@@ -1,7 +1,11 @@
 import axios from "axios";
+import styled from "styled-components";
+import { ThreeDots } from "react-loader-spinner";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import styled from "styled-components";
+import logo from "../assets/trackit_logo.png"
+
+
 
 const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/sign-up"
 
@@ -10,27 +14,36 @@ export default function Register() {
     const [password, setPassword] = useState('')
     const [userName, setUserName] = useState('')
     const [picture, setPicture] = useState('')
-
+    const [interact, setInteract] = useState(false)
 
     function userRegister(e) {
         e.preventDefault();
         const registry = { email: email, name: userName, image: picture, password: password }
         console.log(registry)
+        setInteract(!interact)
 
         const promise = axios.post(URL, registry);
+        setEmail('');
+        setPassword('');
+        setUserName('');
+        setPicture('');
         promise.then((res) => {
-            setEmail('');
-            setPassword('');
-            setUserName('');
-            setPicture('');
             console.log(res.data)
         });
-        promise.catch((err) => console.log(err.response.status));
+        promise.catch((err) => alert(err.response.status));
     }
 
+    const IsLoading = (() => {
+        if(!interact) {
+            return (<Button type={'submit'} interact={interact}>Entrar</Button>)
+        }
+        return <Button><ThreeDots height="15px" width="60px" color="#FFFFFF" /></Button>
+    })
+
     return (
-        <>
-            <form onSubmit={userRegister}>
+        <Container>
+            <Logo src={logo} alt="Logotipo da aplicação" />
+            <InputWrapper onSubmit={userRegister}>
                 <input
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -50,7 +63,6 @@ export default function Register() {
                     onChange={(e) => setUserName(e.target.value)}
                     type={'text'}
                     placeholder='nome'
-                    pattern="[A-Za-z]{1, 31}"
                     required
                 />
                 <input
@@ -60,8 +72,76 @@ export default function Register() {
                     placeholder='foto'
                     required
                 />
-                <input type={'submit'} value='Cadastrar' />
-            </form>
-            <div><Link to="/">Já tem uma conta? Faça login</Link></div>
-        </>)
+                <IsLoading />
+            </InputWrapper>
+            <Text><Link to="/">Já tem uma conta? Faça login</Link></Text>
+        </Container>)
 }
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    margin-top: 12vh;
+`
+
+const Logo = styled.img`
+`
+
+const InputWrapper = styled.form`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 3vh 5vh;
+    box-sizing: border-box;
+
+    input {
+        display: flex;
+        pointer-events: ${ ({ interact }) => !interact ? 'auto' : 'none' };
+        background-color: ${ ({ interact }) => !interact ? '#FFFFFF' : '#F2F2F2' };
+        color: ${ ({ interact }) => !interact ? '#666666' : '#AFAFAF' };
+        width: 100%;
+        height: 40px;
+        margin: 5px 0;
+        padding: 4px 16px;
+        border: 1px solid #D4D4D4;
+        border-radius: 5px;
+        box-sizing: border-box;
+
+        &::placeholder {
+        color: #DBDBDB
+        }
+    }
+`
+
+const Button = styled.button`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: ${ ({ disable }) => !disable ? '#52B6FF' : '#52B6FF70' }; ;
+    color: #FFFFFF;
+    width: 100%;
+    height: 40px;
+    margin: 5px 0;
+    padding: 4px 16px;
+    border: 1px solid #D4D4D4;
+    border-radius: 5px;
+    box-sizing: border-box;
+`
+
+const Text = styled.p`
+    font-size: 14px;
+    color: #52B6FF;
+    text-decoration: underline;
+
+    a {
+        font-size: 14px;
+        color: #52B6FF;
+        text-decoration: underline;
+    }
+`

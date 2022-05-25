@@ -5,7 +5,7 @@ import styled from "styled-components";
 import UserContext from "../context/UserContext";
 
 export default function Footer() {
-    const { progress } = useContext(UserContext)
+    const { progress, userContext } = useContext(UserContext)
     return(
         <Content>
             <Button><Link to={"/habitos"}>Hábitos</Link></Button>

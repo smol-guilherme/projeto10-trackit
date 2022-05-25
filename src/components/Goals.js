@@ -1,40 +1,45 @@
-import Header from './shared/Header'
-import Footer from './shared/Footer'
-
 import { useState, useEffect, useContext } from 'react'
-
-import dayjs from 'dayjs';
-import weekday from 'dayjs/plugin/weekday';
-import 'dayjs/locale/pt-br';
+import { ThreeDots } from "react-loader-spinner";
 
 import axios from "axios";
 import styled from "styled-components";
 import UserContext from './context/UserContext';
 
+import dayjs from 'dayjs';
+import weekday from 'dayjs/plugin/weekday';
+import 'dayjs/locale/pt-br';
+
+import Header from './shared/Header'
+import Footer from './shared/Footer'
+
 const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits"
 
-function NewHabit ({ form, title, setTitle, handleWeekday, create, setCreate, handleSubmit }) {
+function NewHabit ({ IsLoading, form, title, setTitle, handleWeekday, create, setCreate, handleSubmit }) {
+    
     return(
-        <form onSubmit={handleSubmit}>
+        <InputWrapper onSubmit={handleSubmit}>
             <input
                 type={'text'}
                 value={title}
                 placeholder={'nome do hábito'}
                 onChange={(e) => setTitle(e.target.value)}
-                maxLength={32}
+                maxLength={64}
                 required
             />
-            { form.map((item, index) => <div key={index} index={index} onClick={() => handleWeekday(index)}>{item.day}</div> )}
-            <button onClick={() => setCreate(!create)}>cancelar</button>
-            <input
-                type={'submit'} value={'Salvar'}
-            />
-        </form>
+            <DayWrapper>
+                { form.map((item, index) => <Day key={index} select={item.isSelected} index={index} onClick={() => handleWeekday(index)}>{item.day}</Day> )}
+            </DayWrapper>
+            <ButtonWrapper>
+                <Cancel onClick={() => setCreate(!create)}>cancelar</Cancel>
+                <IsLoading />
+            </ButtonWrapper>
+        </InputWrapper>
     )
 }
 
 export default function Goals() {
     const { userContext, setUserContext, setProgress } = useContext(UserContext);
+    const [interact, setInteract] = useState(false)
     const [data, setData] = useState([]);
     const [create, setCreate] = useState(false)
     const [form, setForm] = useState(dayToText)
@@ -42,7 +47,7 @@ export default function Goals() {
     
     function handleSubmit(e) {
         e.preventDefault();
-        console.log('event')
+        setInteract(!interact)
         const days = []
         form.map((item, index) => {
             if(item.isSelected) {
@@ -76,7 +81,7 @@ export default function Goals() {
             setCreate(!create)
             setData(newData)
         })
-        promise.catch((err) => console.log(err.status.response))
+        promise.catch((err) => setInteract(!interact))
     }
 
     function handleWeekday(toggleIndex) {
@@ -103,7 +108,15 @@ export default function Goals() {
         return week;
     }
 
+    const IsLoading = (() => {
+        if(!interact) {
+            return (<Button type={'submit'} interact={interact}>Salvar</Button>)
+        }
+        return <Button><ThreeDots height="10px" width="45px" color="#FFFFFF" /></Button>
+    })
+
     function updateProgress(responseData) {
+        setInteract(!interact)
         const count = responseData.filter((item) =>{
             if (item.done) {
                 return item
@@ -114,7 +127,6 @@ export default function Goals() {
     }
 
     function handleDelete(deleteIndex) {
-        console.log(deleteIndex)
         if(!window.confirm("Tem certeza que deseja deletar este item?")) {
             return;
         }
@@ -133,17 +145,25 @@ export default function Goals() {
                 }
                 return item
             })
-            console.log(newData)
             updateProgress(newData)
+            setInteract(!interact)
             setData([...newData])
         })
         promise.catch((err) => console.log(err.response.status))
     }
 
     useEffect(() => {
+        let dataToken;
+        if(!userContext.hasOwnProperty("token")) {
+            let data = localStorage.getItem("login")
+            data = JSON.parse(data)
+            dataToken = data.token
+        } else {
+            dataToken = userContext.token
+        }
         const config = {
             headers: {
-                "Authorization": `Bearer ${userContext.token}`
+                "Authorization": `Bearer ${dataToken}`
             }
         }
         console.log(config)
@@ -166,8 +186,8 @@ export default function Goals() {
                     <ion-icon onClick={() => setCreate(!create)} name="add-circle"></ion-icon>
                 </div>
                 <div>
+                    { create ? <NewHabit IsLoading={IsLoading} handleSubmit={handleSubmit} title={title} setTitle={setTitle} create={create} setCreate={setCreate} form={form} handleWeekday={handleWeekday} /> : "" }
                     { <HasData /> }
-                    { create ? <NewHabit handleSubmit={handleSubmit} title={title} setTitle={setTitle} create={create} setCreate={setCreate} form={form} handleWeekday={handleWeekday} /> : "" }
                 </div>
             </div>
             <Footer />
@@ -179,8 +199,102 @@ const Content = styled.div`
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 60px;
+    height: 100vh;
     margin: 80px 0;
     padding: 0 10px;
+    background-color: #F2F2F2;
+    box-sizing: border-box;
+`
+
+const InputWrapper = styled.form`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 90vw;
+    margin: 0 auto;
+    padding: 1vh 1vw;
+    background-color: #FFFFFF;
+    border-radius: 5px;
+    box-sizing: border-box;
+
+    input {
+        display: flex;
+        pointer-events: ${ ({ interact }) => !interact ? 'auto' : 'none' };
+        background-color: ${ ({ interact }) => !interact ? '#FFFFFF' : '#F2F2F2' };
+        color: ${ ({ interact }) => !interact ? '#666666' : '#AFAFAF' };
+        width: 90%;
+        height: 40px;
+        margin: 10px 0;
+        padding: 4px 16px;
+        border: 1px solid #D4D4D4;
+        border-radius: 5px;
+        box-sizing: border-box;
+
+        &::placeholder {
+        color: #DBDBDB
+        }
+    }
+`
+
+const ButtonWrapper = styled.div`
+    display: flex;
+    width: 100%;
+    height: 50px;
+    justify-content: flex-end;
+`
+
+const Button = styled.button`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: ${ ({ disable }) => !disable ? '#52B6FF' : '#52B6FF70' }; ;
+    width: 30%;
+    height: 30px;
+    margin: 3px 5% 3px 1%;
+    padding: 9px 16px;
+    border-radius: 5px;
+    color: #FFFFFF;
+    border: none;
+    box-sizing: border-box;
+`
+
+const Cancel = styled.button`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: #FFFFFF;
+    width: 30%;
+    height: 30px;
+    margin: 3px 1% 3px 1%;
+    padding: 9px 16px;
+    color: #52B6FF;
+    border: none;
+    border-radius: 5px;
+
+`
+
+const DayWrapper = styled.div`
+    display: flex;
+    width: 90%;
+    height: 50px;
+    box-sizing: border-box;
+`
+
+const Day = styled.div`
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+    width: 30px;
+    height: 30px;
+    padding: 7px;
+    margin: 3px 5px 3px 0;
+    border: ${ ({ select }) => select ? '1px solid #CFCFCF' : '1px solid #D4D4D4' };
+    color: ${ ({ select }) => select ? '#FFFFFF' : '#DBDBDB'};
+    background-color: ${ ({ select }) => select ? '#CFCFCF' : '#FFFFFF' };
+    border-radius: 5px;
     box-sizing: border-box;
 `

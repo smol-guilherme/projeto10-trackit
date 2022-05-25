@@ -15,6 +15,8 @@ export default function History() {
     return(
         <>
             <Header />
+            <h1>Histórico</h1>
+            <p>Em breve você poderá ver o histórico dos seus hábitos aqui!</p>
             <Footer />
         </>
     )
