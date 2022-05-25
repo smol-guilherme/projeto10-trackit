@@ -3,7 +3,7 @@ import header from '../../assets/trackit_header.png'
 
 import styled from "styled-components";
 
-import UserContext from "./UserContext";
+import UserContext from "../context/UserContext";
 
 function Top({ header }) {
     return(
@@ -14,7 +14,7 @@ function Top({ header }) {
 }
 
 export default function Header() {
-    const { userContext, setUserContext } = useContext(UserContext);
+    const userContext = useContext(UserContext);
     // const UserLogged = (() => userContext.length === 0 ? "" : <Top header={header}></Top>)
     // return(<UserLogged />)
     return <Top header={header}></Top>

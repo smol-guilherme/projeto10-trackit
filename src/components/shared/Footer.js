@@ -1,11 +1,16 @@
+import { useContext } from "react";
 import { Link } from "react-router-dom";
+
 import styled from "styled-components";
+import UserContext from "../context/UserContext";
 
 export default function Footer() {
+    const { progress } = useContext(UserContext)
     return(
         <Content>
             <Button><Link to={"/habitos"}>Hábitos</Link></Button>
             <Progress><Link to={"/hoje"}>Hoje</Link></Progress>
+            <p>{ progress }</p>
             <Button><Link to={"/historico"}>Histórico</Link></Button>
         </Content>
     )

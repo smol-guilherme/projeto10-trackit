@@ -9,7 +9,7 @@ import 'dayjs/locale/pt-br';
 
 import axios from "axios";
 import styled from "styled-components";
-import UserContext from './shared/UserContext';
+import UserContext from './context/UserContext';
 
 const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits"
 
@@ -34,7 +34,7 @@ function NewHabit ({ form, title, setTitle, handleWeekday, create, setCreate, ha
 }
 
 export default function Goals() {
-    const { userContext, setUserContext } = useContext(UserContext);
+    const { userContext, setUserContext, setProgress } = useContext(UserContext);
     const [data, setData] = useState([]);
     const [create, setCreate] = useState(false)
     const [form, setForm] = useState(dayToText)
@@ -62,7 +62,7 @@ export default function Goals() {
 
         const config = {
             headers: {
-                "Authorization": `Bearer ${userContext}`
+                "Authorization": `Bearer ${userContext.token}`
             }
         }
         console.log(body)
@@ -70,6 +70,7 @@ export default function Goals() {
         promise.then((res) => {
             const newData = [...data]
             newData.push(res.data)
+            updateProgress(newData)
             setTitle('')
             setForm(dayToText)
             setCreate(!create)
@@ -102,6 +103,16 @@ export default function Goals() {
         return week;
     }
 
+    function updateProgress(responseData) {
+        const count = responseData.filter((item) =>{
+            if (item.done) {
+                return item
+            }
+            return null
+        })
+        setProgress(Math.round((count.length/responseData.length)*100))
+    }
+
     function handleDelete(deleteIndex) {
         console.log(deleteIndex)
         if(!window.confirm("Tem certeza que deseja deletar este item?")) {
@@ -110,7 +121,7 @@ export default function Goals() {
 
         const config = {
             headers: {
-                "Authorization": `Bearer ${userContext}`
+                "Authorization": `Bearer ${userContext.token}`
             }
         }
         
@@ -123,30 +134,23 @@ export default function Goals() {
                 return item
             })
             console.log(newData)
+            updateProgress(newData)
             setData([...newData])
         })
         promise.catch((err) => console.log(err.response.status))
     }
 
     useEffect(() => {
-        // LEMBRA DE DELETAR ISSO ANTES DE ENTREGARPLEOANIOGADIOSFGUAISDEYS
-        let gambiarraToken;
-        if(userContext.length === 0) {
-            let localToken = localStorage.getItem("login")
-            localToken = JSON.parse(localToken)
-            // console.log(localToken.token)
-            gambiarraToken = localToken.token
-            setUserContext(localToken.token)
-        }
         const config = {
             headers: {
-                "Authorization": `Bearer ${gambiarraToken}`
+                "Authorization": `Bearer ${userContext.token}`
             }
         }
-
+        console.log(config)
         const promise = axios.get(URL, config)
         promise.then((res) => setData(res.data))
         promise.catch((err) => console.log(err.status.response))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const HasData = (() => data.length > 0

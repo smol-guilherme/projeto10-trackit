@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState } from "react";
 
 import Goals from "./Goals";
 import Header from "./shared/Header";
@@ -8,14 +7,12 @@ import Register from "./Register";
 import Track from "./Track";
 
 import GlobalStyle from "../assets/globalStyles";
-import UserContext from "./shared/UserContext";
+import { UserContextProvider } from "./context/UserContext";
 
 export default function App() {
-    const [userContext, setUserContext] = useState('');
-    const contextValue = { userContext, setUserContext }
     return (
+        <UserContextProvider>
         <BrowserRouter>
-            <UserContext.Provider value={contextValue}>
                 <GlobalStyle />
                 <Header />
                 <Routes>
@@ -25,7 +22,7 @@ export default function App() {
                     <Route path="/hoje" element={<Track />} />
                     {/* <Route path="/historico" element={<History />} /> */}
                 </Routes>
-            </UserContext.Provider>
         </BrowserRouter>
+        </UserContextProvider>
     )
 }

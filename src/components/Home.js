@@ -3,12 +3,12 @@ import { useState, useEffect, useContext } from "react";
 
 import axios from "axios";
 import styled from "styled-components";
-import UserContext from "./shared/UserContext";
+import UserContext from "./context/UserContext";
 
 const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/login"
 
 export default function Home() {
-    const { userContext, setUserContext } = useContext(UserContext);
+    const { setUserContext } = useContext(UserContext);
     const navigate = useNavigate();
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -22,6 +22,7 @@ export default function Home() {
             const login = { email: parseUser.email, password: parseUser.password }
             userLogin(login);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     function handleSubmit(e) {
@@ -35,10 +36,13 @@ export default function Home() {
         promise.then((res) => {
             setEmail('')
             setPassword('')
-            setUserContext(res.data.token)
+            setUserContext( {
+                token: res.data.token,
+                image: res.data.image,
+            })
             const user = JSON.stringify(res.data)
             localStorage.setItem("login", user)
-            navigate("/hoje", { state: res.data.token })
+            navigate("/hoje")
         })
         promise.catch((err) => console.log(err.response.status))
     }
