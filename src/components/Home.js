@@ -1,12 +1,14 @@
 import { Link, useNavigate } from "react-router-dom"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 
 import axios from "axios";
 import styled from "styled-components";
+import UserContext from "./shared/UserContext";
 
 const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/login"
 
 export default function Home() {
+    const { userContext, setUserContext } = useContext(UserContext);
     const navigate = useNavigate();
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -20,7 +22,6 @@ export default function Home() {
             const login = { email: parseUser.email, password: parseUser.password }
             userLogin(login);
         }
-        
     }, [])
 
     function handleSubmit(e) {
@@ -34,6 +35,7 @@ export default function Home() {
         promise.then((res) => {
             setEmail('')
             setPassword('')
+            setUserContext(res.data.token)
             const user = JSON.stringify(res.data)
             localStorage.setItem("login", user)
             navigate("/hoje", { state: res.data.token })
@@ -62,5 +64,6 @@ export default function Home() {
                 <input type={'submit'} value='Entrar' />
             </form>
             <div><Link to="/cadastro">Não tem uma conta? cadastre-se</Link></div>
-        </>)
+        </>
+    )
 }
