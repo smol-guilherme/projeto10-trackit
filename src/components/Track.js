@@ -79,11 +79,10 @@ export default function Track() {
                 "Authorization": `Bearer ${dataToken}`
             }
         }
-        // const config = {
-        //     headers: {
-        //         "Authorization": `Bearer ${userContext.token}`
-        //     }
-        // }
+        getProgress(config)
+    }
+    
+    function getProgress(config) {
         const promise = axios.get(URL+ROUTE_TODAY, config)
         promise.then((res) => {
             const count = res.data.filter((item) =>{
@@ -139,8 +138,8 @@ export default function Track() {
         <Header />
         <PageTop>
             <PageTitle>{calendar}</PageTitle>
-            <Progress />
         </PageTop>
+        <Progress />
         <List>
             <Today />
         </List>
@@ -165,24 +164,23 @@ const PageTop = styled.div`
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 35px;
+    min-height: 35px;
     margin-top: 15px;
-    margin-bottom: 25px;
-    justify-content: flex-start;
+    margin-bottom: 5px;
+    justify-content: flex-end;
     align-items: flex-start;
 `
 
 const PageTitle = styled.h1`
-    font-family: 'Lexend Deca', sans-serif;
     display: flex;
     font-size: 23px;
-    margin: 2px 0;
     color: #126BA5;
 `
 
 const DailyProgress = styled.h3`
     display: flex;
     font-size: 18px;
+    margin-bottom: 15px;
     color: ${ ({color}) => color >= 50 ? "#8FC549" : "#BABABA"};
 `
 
@@ -216,7 +214,7 @@ const Card = styled.div`
     justify-content: space-between;
     width: 90%;
     min-height: 35px;
-    margin: 10px 10px 5px;
+    margin: 10px 10px 5px 0;
     padding: 3px 0;
     box-sizing: border-box;
 `
@@ -232,7 +230,7 @@ const Streak = styled.p`
 `
 
 const Record = styled.strong`
-    color: ${ ({ setColor } ) => setColor ? "#8FC549" : "#BABABA" }
+    color: ${ ({ setColor } ) => setColor ? "#8FC549" : "#BABABA" };
 `
 
 const Icon = styled.div`

@@ -13,6 +13,7 @@ import Header from './shared/Header'
 import Footer from './shared/Footer'
 
 const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits"
+const ROUTE_TODAY = "/today"
 
 function NewHabit ({ IsLoading, form, title, setTitle, handleWeekday, create, setCreate, handleSubmit, interact }) {
     
@@ -168,11 +169,26 @@ export default function Goals() {
                 "Authorization": `Bearer ${dataToken}`
             }
         }
+        getProgress(config)
         const promise = axios.get(URL, config)
         promise.then((res) => setData(res.data))
         promise.catch((err) => console.log(err.status.response))
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    // temporario???
+    function getProgress(config) {
+        const promise = axios.get(URL+ROUTE_TODAY, config)
+        promise.then((res) => {
+            const count = res.data.filter((item) =>{
+                if (item.done) {
+                    return item
+                }
+                return null
+            })
+            setProgress(Math.round((count.length/res.data.length)*100))
+        });
+    }
 
     const CreateHabit = (() => {
         if(create) {
@@ -256,11 +272,11 @@ const Content = styled.div`
 const PageTop = styled.div`
     display: flex;
     width: 100%;
-    height: 35px;
+    min-height: 35px;
     margin-top: 15px;
     margin-bottom: 10px;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
     text-align: center;
 `
 
@@ -399,7 +415,7 @@ const Cancel = styled.button`
 
 const DayWrapper = styled.div`
     display: flex;
-    align-items: flex-end;
+    align-items: flex-start;
     width: 90%;
     height: 50px;
     box-sizing: border-box;
@@ -413,7 +429,7 @@ const Day = styled.div`
     width: 30px;
     height: 30px;
     padding: 7px;
-    margin: 3px 5px 3px;
+    margin: 3px 5px 3px 0;
     border: ${ ({ select }) => select ? '1px solid #CFCFCF' : '1px solid #D4D4D4' };
     color: ${ ({ select }) => select ? '#FFFFFF' : '#DBDBDB'};
     background-color: ${ ({ select }) => select ? '#CFCFCF' : '#FFFFFF' };
