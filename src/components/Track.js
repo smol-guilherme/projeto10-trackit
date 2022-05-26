@@ -87,9 +87,9 @@ export default function Track() {
         promise.then((res) => {
             const count = res.data.filter((item) =>{
                 if (item.done) {
-                    return item
+                    return item;
                 }
-                return null
+                return null;
             })
             setProgress(Math.round((count.length/res.data.length)*100))
             setData(res.data);

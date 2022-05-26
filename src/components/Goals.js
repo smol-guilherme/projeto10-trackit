@@ -24,7 +24,6 @@ function NewHabit ({ IsLoading, form, title, setTitle, handleWeekday, create, se
                 placeholder={'nome do hábito'}
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={64}
-                autoFocus
                 required
             />
             <DayWrapper>
@@ -49,7 +48,7 @@ export default function Goals() {
     function handleSubmit(e) {
         e.preventDefault();
         console.log(e.type)
-        // setInteract(true)
+        setInteract(true)
         const days = []
         form.map((item, index) => {
             if(item.isSelected) {
@@ -79,9 +78,9 @@ export default function Goals() {
             updateProgress(newData)
             setTitle('')
             setForm(dayToText)
-            setCreate(!create)
+            setCreate(false)
             setData(newData)
-            // setInteract(false)
+            setInteract(false)
         })
         promise.catch((err) => setInteract(false))
     }
@@ -118,7 +117,7 @@ export default function Goals() {
     })
 
     function updateProgress(responseData) {
-        // setInteract(true)
+        setInteract(true)
         const count = responseData.filter((item) =>{
             if (item.done) {
                 return item
@@ -177,7 +176,6 @@ export default function Goals() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    // temporario???
     function getProgress(config) {
         const promise = axios.get(URL+ROUTE_TODAY, config)
         promise.then((res) => {
@@ -190,24 +188,6 @@ export default function Goals() {
             setProgress(Math.round((count.length/res.data.length)*100))
         });
     }
-
-    const CreateHabit = (() => {
-        if(create) {
-            return(
-                <NewHabit 
-                    IsLoading={IsLoading}
-                    handleSubmit={handleSubmit}
-                    title={title}
-                    setTitle={setTitle}
-                    create={create}
-                    setCreate={setCreate}
-                    form={form}
-                    handleWeekday={handleWeekday}
-                    interact={interact}
-                />)
-        }
-        return null
-    })
 
     const SelectedDays = (({ days }) => {
         const components = []
@@ -249,7 +229,21 @@ export default function Goals() {
                     <AddIcon><ion-icon onClick={() => setCreate(!create)} name="add-outline"></ion-icon></AddIcon>
                 </PageTop>
                 <List>
-                    <CreateHabit />
+                    {
+                    create 
+                        ? <NewHabit 
+                            IsLoading={IsLoading}
+                            handleSubmit={handleSubmit}
+                            title={title}
+                            setTitle={setTitle}
+                            create={create}
+                            setCreate={setCreate}
+                            form={form}
+                            handleWeekday={handleWeekday}
+                            interact={interact}
+                        />
+                        : null
+                    }
                     <HasData />
                 </List>
             <Footer />
@@ -352,6 +346,7 @@ const InputWrapper = styled.form`
     align-items: center;
     width: 90vw;
     margin: 0 auto;
+    margin-bottom: 15px;
     padding: 1vh 1vw;
     background-color: #FFFFFF;
     border-radius: 5px;
