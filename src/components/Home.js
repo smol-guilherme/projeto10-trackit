@@ -37,10 +37,9 @@ export default function Home() {
 
     function userLogin(login) {
         const promise = axios.post(URL, login)
-        setInteract(!interact)
+        setInteract(true)
         promise.then((res) => {
-            setEmail('')
-            setPassword('')
+            toggleInputs();
             setUserContext( {
                 token: res.data.token,
                 image: res.data.image,
@@ -49,7 +48,22 @@ export default function Home() {
             localStorage.setItem("login", user)
             navigate("/hoje")
         })
-        promise.catch((err) => console.log(err.response.status))
+        promise.catch((err) => handleErr(err))
+    }
+
+    function toggleInputs() {
+        setInteract(false);
+        setEmail('');
+        setPassword('');
+    }
+
+    function handleErr(err) {
+        toggleInputs();
+        console.log(err.response)
+        if(err.response.status === 401) {
+            return alert("Usuário ou senha incorretos")
+        }
+        return alert("Erro desconhecido")
     }
 
     const IsLoading = (() => {
@@ -77,7 +91,7 @@ export default function Home() {
                     placeholder='senha'
                     required
                 />
-                { <IsLoading /> }
+                <IsLoading />
             </InputWrapper>
             <Text><Link to="/cadastro">Não tem uma conta? cadastre-se</Link></Text>
         </Container>
@@ -129,7 +143,7 @@ const Button = styled.button`
     justify-content: center;
     align-items: center;
     text-align: center;
-    background-color: ${ ({ disable }) => !disable ? '#52B6FF' : '#52B6FF70' }; ;
+    background-color: ${ ({ interact }) => !interact ? '#52B6FF' : '#52B6FF70' }; ;
     color: #FFFFFF;
     width: 100%;
     height: 40px;

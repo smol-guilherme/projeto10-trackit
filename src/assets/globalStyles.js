@@ -1,5 +1,9 @@
 import { createGlobalStyle } from "styled-components";
 
+{/* <style>
+	@import url('https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100;200;300;400;500;600;700&display=swap');
+</style>  */}
+
 const GlobalStyle = createGlobalStyle`
 /* http://meyerweb.com/eric/tools/css/reset/ 
    v2.0 | 20110126
@@ -22,7 +26,7 @@ time, mark, audio, video {
 	padding: 0;
 	border: 0;
 	font-size: 100%;
-	font: inherit;
+	/* font: inherit; */
 	vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
@@ -49,7 +53,8 @@ table {
 	border-spacing: 0;
 }
 body {
-    font-family: 'Roboto', sans-serif;
+	font-family: 'Lexend Deca';
+	/* font-family: 'Lexend Deca', sans-serif; */
 }
 `
 

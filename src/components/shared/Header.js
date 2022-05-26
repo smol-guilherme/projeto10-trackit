@@ -8,18 +8,16 @@ import UserContext from "../context/UserContext";
 function Top({ pfp }) {
     return(
         <Content>
-            <img src={header} alt="logo" />
-            <img src={pfp} alt="foto de perfil" />
+            <Logo src={header} alt="logo" />
+            <Profile src={pfp} alt="foto de perfil" />
         </Content>
     );
 }
 
 export default function Header() {
     const { userContext } = useContext(UserContext);
-    console.log(userContext)
-    // const UserLogged = (() => !userContext.hasOwnProperty("token") ? "" : <Top />)
-    // return(<UserLogged />)
-    return <Top />
+    const UserLogged = (() => !userContext.hasOwnProperty("token") ? "" : <Top pfp={userContext.image} />)
+    return(<UserLogged />)
 }
 
 const Content = styled.div`
@@ -31,15 +29,22 @@ const Content = styled.div`
     padding: 0 10px;
     position: fixed;
     background-color: #126BA5;
+    box-shadow: 0 1px 2px 2px #66666650;
     top: 0;
     left: 0;
     box-sizing: border-box;
-
-    img {
-        width: 50px;
-    }
+    z-index: 1;
 `
 
 const Logo = styled.img`
+    height: 50px;
+    width: 100px;
+    object-fit: contain;
+`
 
+const Profile = styled.img`
+    height: 50px;
+    width: 50px;
+    object-fit: cover;
+    border-radius: 50%;
 `

@@ -20,14 +20,16 @@ const Content = styled.div`
     display: flex;
     align-items: center;
     width: 100%;
-    height: 60px;
+    height: 80px;
     padding: 0 10px;
     justify-content: space-around;
     position: fixed;
     background-color: #126BA5;
+    box-shadow: 0 -1px 2px 2px #66666650;
     bottom: 0;
     left: 0;
     box-sizing: border-box;
+    z-index: 1;
 `
 
 const Button = styled.div`

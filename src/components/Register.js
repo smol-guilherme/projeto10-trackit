@@ -20,17 +20,23 @@ export default function Register() {
         e.preventDefault();
         const registry = { email: email, name: userName, image: picture, password: password }
         console.log(registry)
-        setInteract(!interact)
+        setInteract(true)
 
         const promise = axios.post(URL, registry);
+
+        promise.then((res) => {
+            toggleInputs();
+            console.log(res.data)
+        });
+        promise.catch((err) => { alert(err.response.status); toggleInputs(); });
+    }
+
+    function toggleInputs() {
+        setInteract(false);
         setEmail('');
         setPassword('');
         setUserName('');
         setPicture('');
-        promise.then((res) => {
-            console.log(res.data)
-        });
-        promise.catch((err) => alert(err.response.status));
     }
 
     const IsLoading = (() => {
@@ -123,7 +129,7 @@ const Button = styled.button`
     justify-content: center;
     align-items: center;
     text-align: center;
-    background-color: ${ ({ disable }) => !disable ? '#52B6FF' : '#52B6FF70' }; ;
+    background-color: ${ ({ interact }) => !interact ? '#52B6FF' : '#52B6FF70' }; ;
     color: #FFFFFF;
     width: 100%;
     height: 40px;

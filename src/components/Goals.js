@@ -14,10 +14,10 @@ import Footer from './shared/Footer'
 
 const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits"
 
-function NewHabit ({ IsLoading, form, title, setTitle, handleWeekday, create, setCreate, handleSubmit }) {
+function NewHabit ({ IsLoading, form, title, setTitle, handleWeekday, create, setCreate, handleSubmit, interact }) {
     
     return(
-        <InputWrapper onSubmit={handleSubmit}>
+        <InputWrapper onSubmit={handleSubmit} interact={interact}>
             <input
                 type={'text'}
                 value={title}
@@ -47,7 +47,7 @@ export default function Goals() {
     
     function handleSubmit(e) {
         e.preventDefault();
-        setInteract(!interact)
+        setInteract(true)
         const days = []
         form.map((item, index) => {
             if(item.isSelected) {
@@ -70,7 +70,6 @@ export default function Goals() {
                 "Authorization": `Bearer ${userContext.token}`
             }
         }
-        console.log(body)
         const promise = axios.post(URL, body, config)
         promise.then((res) => {
             const newData = [...data]
@@ -80,8 +79,9 @@ export default function Goals() {
             setForm(dayToText)
             setCreate(!create)
             setData(newData)
+            setInteract(false)
         })
-        promise.catch((err) => setInteract(!interact))
+        promise.catch((err) => setInteract(false))
     }
 
     function handleWeekday(toggleIndex) {
@@ -146,7 +146,7 @@ export default function Goals() {
                 return item
             })
             updateProgress(newData)
-            setInteract(!interact)
+            setInteract(false)
             setData([...newData])
         })
         promise.catch((err) => console.log(err.response.status))
@@ -158,6 +158,8 @@ export default function Goals() {
             let data = localStorage.getItem("login")
             data = JSON.parse(data)
             dataToken = data.token
+            const newContext = { ...userContext }
+            setUserContext({ newContext, token: dataToken, image: data.image })
         } else {
             dataToken = userContext.token
         }
@@ -166,30 +168,73 @@ export default function Goals() {
                 "Authorization": `Bearer ${dataToken}`
             }
         }
-        console.log(config)
         const promise = axios.get(URL, config)
         promise.then((res) => setData(res.data))
         promise.catch((err) => console.log(err.status.response))
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    const HasData = (() => data.length > 0
-        ? data.map((item, index) => <div key={index}>{item.name}<ion-icon onClick={() => handleDelete(item.id)} name="trash-outline"></ion-icon></div>)
-        : <div>"Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para começar a trackear!"</div>)
+    const CreateHabit = (() => {
+        if(create) {
+            return(
+                <NewHabit 
+                    IsLoading={IsLoading}
+                    handleSubmit={handleSubmit}
+                    title={title}
+                    setTitle={setTitle}
+                    create={create}
+                    setCreate={setCreate}
+                    form={form}
+                    handleWeekday={handleWeekday}
+                    interact={interact}
+                />)
+        }
+        return null
+    })
+
+    const SelectedDays = (({ days }) => {
+        const components = []
+        form.map((day, index) => {
+            if(days.includes(index)) {
+                components.push(<Day key={index} select={true}>{day.day}</Day>)
+            } else {
+                components.push(<Day key={index} select={false}>{day.day}</Day>)
+            }
+            return day
+        })
+        return components
+    })
+
+    const HasData = (() => {
+        if(data.length > 0) {
+            return (data.map((item, index) => 
+            <CardWrapper key={index}>
+                <Card>{item.name}
+                    <DelIcon>
+                        <ion-icon onClick={() => handleDelete(item.id)}
+                            name="trash-outline">
+                        </ion-icon>
+                    </DelIcon>
+                </Card>
+                <DayWrapper>
+                    <SelectedDays days={item.days} />
+                </DayWrapper>
+            </CardWrapper>))
+        }
+        return (<Card>"Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para começar a trackear!"</Card>)  
+    })
 
     return (
         <Content>
             <Header />
-            <div>
-                <div>
-                    <h1>Meus hábitos</h1>
-                    <ion-icon onClick={() => setCreate(!create)} name="add-circle"></ion-icon>
-                </div>
-                <div>
-                    { create ? <NewHabit IsLoading={IsLoading} handleSubmit={handleSubmit} title={title} setTitle={setTitle} create={create} setCreate={setCreate} form={form} handleWeekday={handleWeekday} /> : "" }
-                    { <HasData /> }
-                </div>
-            </div>
+                <PageTop>
+                    <PageTitle>Meus hábitos</PageTitle>
+                    <AddIcon><ion-icon onClick={() => setCreate(!create)} name="add-outline"></ion-icon></AddIcon>
+                </PageTop>
+                <List>
+                    <CreateHabit />
+                    <HasData />
+                </List>
             <Footer />
         </Content>
     )
@@ -199,10 +244,87 @@ const Content = styled.div`
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 100vh;
+    height: 76vh;
     margin: 80px 0;
-    padding: 0 10px;
+    padding: 0 2.5vw;
+    font-size: 18px;
+    color: #666666;
     background-color: #F2F2F2;
+    box-sizing: border-box;
+`
+
+const PageTop = styled.div`
+    display: flex;
+    width: 100%;
+    height: 35px;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+`
+
+const PageTitle = styled.h1`
+    font-family: 'Lexend Deca', sans-serif;
+    display: flex;
+    font-size: 23px;
+    color: #126BA5;
+`
+
+const AddIcon = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    border-radius: 5px;
+    color: #FFFFFF;
+    background-color: #52B6FF;
+`
+
+const DelIcon = styled.div`
+    display: flex;
+    width: 15px;
+    height: 15px;
+    font-size: 15px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+`
+
+const List = styled.ul`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    margin: 5px 0;
+    justify-content: space-between;
+    align-items: center;
+    overflow-y: scroll;
+`
+
+const CardWrapper = styled.li`
+    display: flex;
+    flex-direction: column;
+    width: 95%;
+    min-height: 80px;
+    background-color: #FFFFFF;
+    margin: 3px 3px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    position: relative;
+    box-sizing: border-box;
+`
+
+const Card = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 90%;
+    min-height: 35px;
+    margin-bottom: 6px;
+    padding: 3px 0;
     box-sizing: border-box;
 `
 
@@ -249,7 +371,7 @@ const Button = styled.button`
     justify-content: center;
     align-items: center;
     text-align: center;
-    background-color: ${ ({ disable }) => !disable ? '#52B6FF' : '#52B6FF70' }; ;
+    background-color: ${ ({ interact }) => !interact ? '#52B6FF' : '#52B6FF70' }; ;
     width: 30%;
     height: 30px;
     margin: 3px 5% 3px 1%;
@@ -273,11 +395,11 @@ const Cancel = styled.button`
     color: #52B6FF;
     border: none;
     border-radius: 5px;
-
 `
 
 const DayWrapper = styled.div`
     display: flex;
+    align-items: flex-end;
     width: 90%;
     height: 50px;
     box-sizing: border-box;
@@ -291,7 +413,7 @@ const Day = styled.div`
     width: 30px;
     height: 30px;
     padding: 7px;
-    margin: 3px 5px 3px 0;
+    margin: 3px 5px 3px;
     border: ${ ({ select }) => select ? '1px solid #CFCFCF' : '1px solid #D4D4D4' };
     color: ${ ({ select }) => select ? '#FFFFFF' : '#DBDBDB'};
     background-color: ${ ({ select }) => select ? '#CFCFCF' : '#FFFFFF' };
