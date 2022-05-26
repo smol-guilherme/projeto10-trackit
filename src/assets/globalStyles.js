@@ -54,7 +54,6 @@ table {
 }
 body {
 	font-family: 'Lexend Deca';
-	/* font-family: 'Lexend Deca', sans-serif; */
 }
 `
 

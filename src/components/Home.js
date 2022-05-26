@@ -17,14 +17,14 @@ export default function Home() {
     const [interact, setInteract] = useState(false)
 
     useEffect(() => {
-        const autoLogin = localStorage.getItem("login");
-        if (autoLogin !== null) {
-            const parseUser = JSON.parse(autoLogin)
-            setEmail(parseUser.email)
-            setPassword(parseUser.password)
-            const login = { email: parseUser.email, password: parseUser.password }
-            userLogin(login);
-        }
+        // const autoLogin = localStorage.getItem("login");
+        // if (autoLogin !== null) {
+        //     const parseUser = JSON.parse(autoLogin)
+        //     setEmail(parseUser.email)
+        //     setPassword(parseUser.password)
+        //     const login = { email: parseUser.email, password: parseUser.password }
+        //     userLogin(login);
+        // }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -59,7 +59,6 @@ export default function Home() {
 
     function handleErr(err) {
         toggleInputs();
-        console.log(err.response)
         if(err.response.status === 401) {
             return alert("Usuário ou senha incorretos")
         }
@@ -127,18 +126,22 @@ const InputWrapper = styled.form`
         width: 100%;
         height: 40px;
         margin: 5px 0;
-        padding: 4px 16px;
+        padding: 4px 12px;
         border: 1px solid #D4D4D4;
         border-radius: 5px;
         box-sizing: border-box;
 
         &::placeholder {
-        color: #DBDBDB
+        	font-family: 'Lexend Deca';
+            font-size: 20px;
+            color: #DBDBDB
         }
     }
 `
 
 const Button = styled.button`
+	font-family: 'Lexend Deca';
+    font-size: 21px;
     display: flex;
     justify-content: center;
     align-items: center;

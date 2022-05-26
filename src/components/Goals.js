@@ -16,7 +16,6 @@ const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits"
 const ROUTE_TODAY = "/today"
 
 function NewHabit ({ IsLoading, form, title, setTitle, handleWeekday, create, setCreate, handleSubmit, interact }) {
-    
     return(
         <InputWrapper onSubmit={handleSubmit} interact={interact}>
             <input
@@ -25,6 +24,7 @@ function NewHabit ({ IsLoading, form, title, setTitle, handleWeekday, create, se
                 placeholder={'nome do hábito'}
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={64}
+                autoFocus
                 required
             />
             <DayWrapper>
@@ -32,7 +32,7 @@ function NewHabit ({ IsLoading, form, title, setTitle, handleWeekday, create, se
             </DayWrapper>
             <ButtonWrapper>
                 <Cancel onClick={() => setCreate(!create)}>cancelar</Cancel>
-                <IsLoading />
+                { <IsLoading /> }
             </ButtonWrapper>
         </InputWrapper>
     )
@@ -48,7 +48,8 @@ export default function Goals() {
     
     function handleSubmit(e) {
         e.preventDefault();
-        setInteract(true)
+        console.log(e.type)
+        // setInteract(true)
         const days = []
         form.map((item, index) => {
             if(item.isSelected) {
@@ -80,7 +81,7 @@ export default function Goals() {
             setForm(dayToText)
             setCreate(!create)
             setData(newData)
-            setInteract(false)
+            // setInteract(false)
         })
         promise.catch((err) => setInteract(false))
     }
@@ -117,7 +118,7 @@ export default function Goals() {
     })
 
     function updateProgress(responseData) {
-        setInteract(!interact)
+        // setInteract(true)
         const count = responseData.filter((item) =>{
             if (item.done) {
                 return item
@@ -357,6 +358,8 @@ const InputWrapper = styled.form`
     box-sizing: border-box;
 
     input {
+        font-family: 'Lexend Deca';
+        font-size: 20px;
         display: flex;
         pointer-events: ${ ({ interact }) => !interact ? 'auto' : 'none' };
         background-color: ${ ({ interact }) => !interact ? '#FFFFFF' : '#F2F2F2' };
@@ -364,7 +367,7 @@ const InputWrapper = styled.form`
         width: 90%;
         height: 40px;
         margin: 10px 0;
-        padding: 4px 16px;
+        padding: 4px 12px;
         border: 1px solid #D4D4D4;
         border-radius: 5px;
         box-sizing: border-box;
@@ -383,6 +386,8 @@ const ButtonWrapper = styled.div`
 `
 
 const Button = styled.button`
+    font-family: 'Lexend Deca';
+    font-size: 16px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -399,6 +404,8 @@ const Button = styled.button`
 `
 
 const Cancel = styled.button`
+    font-family: 'Lexend Deca';
+    font-size: 16px;
     display: flex;
     justify-content: center;
     align-items: center;

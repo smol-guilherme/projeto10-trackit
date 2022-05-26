@@ -2,7 +2,7 @@ import axios from "axios";
 import styled from "styled-components";
 import { ThreeDots } from "react-loader-spinner";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/trackit_logo.png"
 
 
@@ -10,6 +10,7 @@ import logo from "../assets/trackit_logo.png"
 const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/sign-up"
 
 export default function Register() {
+    const navigate = useNavigate();
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [userName, setUserName] = useState('')
@@ -19,16 +20,15 @@ export default function Register() {
     function userRegister(e) {
         e.preventDefault();
         const registry = { email: email, name: userName, image: picture, password: password }
-        console.log(registry)
         setInteract(true)
 
         const promise = axios.post(URL, registry);
 
         promise.then((res) => {
             toggleInputs();
-            console.log(res.data)
+            navigate("/")
         });
-        promise.catch((err) => { alert(err.response.status); toggleInputs(); });
+        promise.catch((err) => alert("Este e-mail já foi cadastrado"));
     }
 
     function toggleInputs() {
@@ -41,7 +41,7 @@ export default function Register() {
 
     const IsLoading = (() => {
         if(!interact) {
-            return (<Button type={'submit'} interact={interact}>Entrar</Button>)
+            return (<Button type={'submit'} interact={interact}>Cadastrar</Button>)
         }
         return <Button><ThreeDots height="15px" width="60px" color="#FFFFFF" /></Button>
     })
@@ -113,18 +113,22 @@ const InputWrapper = styled.form`
         width: 100%;
         height: 40px;
         margin: 5px 0;
-        padding: 4px 16px;
+        padding: 4px 12px;
         border: 1px solid #D4D4D4;
         border-radius: 5px;
         box-sizing: border-box;
 
         &::placeholder {
-        color: #DBDBDB
+            font-family: 'Lexend Deca';
+            font-size: 20px;
+            color: #DBDBDB
         }
     }
 `
 
 const Button = styled.button`
+	font-family: 'Lexend Deca';
+    font-size: 21px;
     display: flex;
     justify-content: center;
     align-items: center;
