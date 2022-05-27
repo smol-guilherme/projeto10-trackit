@@ -17,6 +17,7 @@ export default function Home() {
     const [interact, setInteract] = useState(false)
 
     useEffect(() => {
+        setUserContext({})
         // const autoLogin = localStorage.getItem("login");
         // if (autoLogin !== null) {
         //     const parseUser = JSON.parse(autoLogin)

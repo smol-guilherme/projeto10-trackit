@@ -1,13 +1,50 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import 'react-circular-progressbar/dist/styles.css';
 
 import styled from "styled-components";
 import UserContext from "../context/UserContext";
+import axios from "axios";
+
+const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits";
+const ROUTE_TODAY = "/today";
 
 export default function Footer() {
-    const { progress, userContext } = useContext(UserContext)
+    const { progress, setProgress, userContext, setUserContext } = useContext(UserContext)
+
+    useEffect(() => {
+        let dataToken;
+        if(!userContext.hasOwnProperty("token")) {
+            let data = localStorage.getItem("login")
+            data = JSON.parse(data)
+            dataToken = data.token
+            const newContext = { ...userContext }
+            setUserContext({ newContext, token: dataToken, image: data.image })
+        } else {
+            dataToken = userContext.token
+        }
+        const config = {
+            headers: {
+                "Authorization": `Bearer ${dataToken}`
+            }
+        }
+        getProgress(config)
+    })
+
+    function getProgress(config) {
+        const promise = axios.get(URL+ROUTE_TODAY, config)
+        promise.then((res) => {
+            const count = res.data.filter((item) =>{
+                if (item.done) {
+                    return item
+                }
+                return null
+            })
+            const value = isNaN(Math.round((count.length/res.data.length)*100)) ? 0 : Math.round((count.length/res.data.length)*100)
+            setProgress(value)
+        });
+    }
 
     return(
         <Content>
@@ -28,7 +65,6 @@ export default function Footer() {
                     />
                 </Link>
             </Progress>
-            {/* <p>{ progress }</p> */}
             <Button><Link to={"/historico"}>Histórico</Link></Button>
         </Content>
     )

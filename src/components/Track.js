@@ -20,7 +20,7 @@ const ROUTE_UNCHECK = "/uncheck"
 function Task({ handleCheck, index, task }) {
     const { highestSequence: highest , currentSequence: sequence, done, name } = task
 
-    const color = (() => (highest !== 0 && sequence === highest) ? true : false)
+    const color = (() => (highest !== 0 && sequence === highest && done) ? true : false)
     const Template = (({ num, color }) => num !== 1 ? <Record setColor={color} >{num} dias</Record> : <Record setColor={color} >{num} dia</Record>)
     return(
         <CardWrapper>
@@ -35,10 +35,10 @@ function Task({ handleCheck, index, task }) {
 }
 
 export default function Track() {
-    const { userContext, setProgress, setUserContext } = useContext(UserContext);
+    const { userContext, setUserContext } = useContext(UserContext);
 
     const [data, setData] = useState([]);
-    const [calendar, setCalendar] = useState(getDate);
+    const [calendar, ] = useState(getDate);
 
     function getDate() {
         dayjs.extend(weekday)
@@ -85,13 +85,6 @@ export default function Track() {
     function getProgress(config) {
         const promise = axios.get(URL+ROUTE_TODAY, config)
         promise.then((res) => {
-            const count = res.data.filter((item) =>{
-                if (item.done) {
-                    return item;
-                }
-                return null;
-            })
-            setProgress(Math.round((count.length/res.data.length)*100))
             setData(res.data);
         });
     }

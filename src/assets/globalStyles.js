@@ -1,9 +1,5 @@
 import { createGlobalStyle } from "styled-components";
 
-{/* <style>
-	@import url('https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100;200;300;400;500;600;700&display=swap');
-</style>  */}
-
 const GlobalStyle = createGlobalStyle`
 /* http://meyerweb.com/eric/tools/css/reset/ 
    v2.0 | 20110126

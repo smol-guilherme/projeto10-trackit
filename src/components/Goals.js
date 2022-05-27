@@ -13,7 +13,6 @@ import Header from './shared/Header'
 import Footer from './shared/Footer'
 
 const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits"
-const ROUTE_TODAY = "/today"
 
 function NewHabit ({ IsLoading, form, title, setTitle, handleWeekday, create, setCreate, handleSubmit, interact }) {
     return(
@@ -27,7 +26,16 @@ function NewHabit ({ IsLoading, form, title, setTitle, handleWeekday, create, se
                 required
             />
             <DayWrapper>
-                { form.map((item, index) => <Day key={index} select={item.isSelected} index={index} onClick={() => handleWeekday(index)}>{item.day}</Day> )}
+                { 
+                    form.map((item, index) =>
+                        <Day 
+                            key={index}
+                            select={item.isSelected}
+                            index={index}
+                            onClick={() => interact ? null : handleWeekday(index)}>
+                            {item.day}
+                        </Day>
+                )}
             </DayWrapper>
             <ButtonWrapper>
                 <Cancel onClick={() => setCreate(!create)}>cancelar</Cancel>
@@ -38,7 +46,7 @@ function NewHabit ({ IsLoading, form, title, setTitle, handleWeekday, create, se
 }
 
 export default function Goals() {
-    const { userContext, setUserContext, setProgress } = useContext(UserContext);
+    const { userContext, setUserContext } = useContext(UserContext);
     const [interact, setInteract] = useState(false)
     const [data, setData] = useState([]);
     const [create, setCreate] = useState(false)
@@ -47,7 +55,6 @@ export default function Goals() {
     
     function handleSubmit(e) {
         e.preventDefault();
-        console.log(e.type)
         setInteract(true)
         const days = []
         form.map((item, index) => {
@@ -75,7 +82,6 @@ export default function Goals() {
         promise.then((res) => {
             const newData = [...data]
             newData.push(res.data)
-            updateProgress(newData)
             setTitle('')
             setForm(dayToText)
             setCreate(false)
@@ -116,17 +122,6 @@ export default function Goals() {
         return <Button><ThreeDots height="10px" width="45px" color="#FFFFFF" /></Button>
     })
 
-    function updateProgress(responseData) {
-        setInteract(true)
-        const count = responseData.filter((item) =>{
-            if (item.done) {
-                return item
-            }
-            return null
-        })
-        setProgress(Math.round((count.length/responseData.length)*100))
-    }
-
     function handleDelete(deleteIndex) {
         if(!window.confirm("Tem certeza que deseja deletar este item?")) {
             return;
@@ -146,11 +141,10 @@ export default function Goals() {
                 }
                 return item
             })
-            updateProgress(newData)
             setInteract(false)
             setData([...newData])
         })
-        promise.catch((err) => console.log(err.response.status))
+        promise.catch((err) => { console.log(err.response.status); setInteract(false); })
     }
 
     useEffect(() => {
@@ -169,25 +163,11 @@ export default function Goals() {
                 "Authorization": `Bearer ${dataToken}`
             }
         }
-        getProgress(config)
         const promise = axios.get(URL, config)
         promise.then((res) => setData(res.data))
         promise.catch((err) => console.log(err.status.response))
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
-    function getProgress(config) {
-        const promise = axios.get(URL+ROUTE_TODAY, config)
-        promise.then((res) => {
-            const count = res.data.filter((item) =>{
-                if (item.done) {
-                    return item
-                }
-                return null
-            })
-            setProgress(Math.round((count.length/res.data.length)*100))
-        });
-    }
 
     const SelectedDays = (({ days }) => {
         const components = []
@@ -218,7 +198,7 @@ export default function Goals() {
                 </DayWrapper>
             </CardWrapper>))
         }
-        return (<Card>"Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para começar a trackear!"</Card>)  
+        return (<Template>Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para começar a trackear!</Template>)  
     })
 
     return (
@@ -276,7 +256,6 @@ const PageTop = styled.div`
 `
 
 const PageTitle = styled.h1`
-    font-family: 'Lexend Deca', sans-serif;
     display: flex;
     font-size: 23px;
     color: #126BA5;
@@ -339,6 +318,11 @@ const Card = styled.div`
     box-sizing: border-box;
 `
 
+const Template = styled.p`
+    display: flex;
+    margin: 15px 0;
+`
+
 const InputWrapper = styled.form`
     display: flex;
     flex-direction: column;
@@ -368,7 +352,7 @@ const InputWrapper = styled.form`
         box-sizing: border-box;
 
         &::placeholder {
-        color: #DBDBDB
+            color: ${ ({ interact }) => !interact ? '#DBDBDB' : '#AFAFAF' };
         }
     }
 `
