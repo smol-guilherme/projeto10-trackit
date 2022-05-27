@@ -29,7 +29,7 @@ export default function Register() {
             toggleInputs();
             navigate("/")
         });
-        promise.catch((err) => { alert("Este e-mail já foi cadastrado"); toggleInputs(); });
+        promise.catch((err) => { alert("Este e-mail já foi cadastrado"); setEmail(''); setInteract(false); });
     }
 
     function toggleInputs() {
@@ -77,6 +77,8 @@ export default function Register() {
                     onChange={(e) => setPicture(e.target.value)}
                     type={'text'}
                     placeholder='foto'
+                    pattern={"^https?:\/\/(?:[a-z\-]+\.)+[a-z]{2,6}(?:\/[^\/#?]+)+\.(?:jpe?g|gif|png)$"}
+                    title={"Link de imagem terminado com formato de imagem (jpg, png, etc.)"}
                     required
                 />
                 <IsLoading />
