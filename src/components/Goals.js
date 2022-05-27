@@ -55,7 +55,7 @@ export default function Goals() {
     
     function handleSubmit(e) {
         e.preventDefault();
-        setInteract(true)
+        e.target.blur();
         const days = []
         form.map((item, index) => {
             if(item.isSelected) {
@@ -68,6 +68,7 @@ export default function Goals() {
             alert("Você precisa adicionar pelo menos um dia da semana");
             return;
         }
+        setInteract(true)
         const body = {
             name: title,
             days: days
@@ -204,28 +205,28 @@ export default function Goals() {
     return (
         <Content>
             <Header />
-                <PageTop>
-                    <PageTitle>Meus hábitos</PageTitle>
-                    <AddIcon><ion-icon onClick={() => setCreate(!create)} name="add-outline"></ion-icon></AddIcon>
-                </PageTop>
-                <List>
-                    {
-                    create 
-                        ? <NewHabit 
-                            IsLoading={IsLoading}
-                            handleSubmit={handleSubmit}
-                            title={title}
-                            setTitle={setTitle}
-                            create={create}
-                            setCreate={setCreate}
-                            form={form}
-                            handleWeekday={handleWeekday}
-                            interact={interact}
-                        />
-                        : null
-                    }
-                    <HasData />
-                </List>
+            <PageTop>
+                <PageTitle>Meus hábitos</PageTitle>
+                <AddIcon><ion-icon onClick={() => setCreate(!create)} name="add-outline"></ion-icon></AddIcon>
+            </PageTop>
+            <List>
+                {
+                create 
+                    ? <NewHabit 
+                        IsLoading={IsLoading}
+                        handleSubmit={handleSubmit}
+                        title={title}
+                        setTitle={setTitle}
+                        create={create}
+                        setCreate={setCreate}
+                        form={form}
+                        handleWeekday={handleWeekday}
+                        interact={interact}
+                    />
+                    : null
+                }
+                <HasData />
+            </List>
             <Footer />
         </Content>
     )
@@ -289,7 +290,7 @@ const List = styled.ul`
     width: 100%;
     height: 100%;
     margin: 5px 0;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     overflow-y: scroll;
 `
@@ -298,7 +299,7 @@ const CardWrapper = styled.li`
     display: flex;
     flex-direction: column;
     width: 95%;
-    min-height: 80px;
+    max-height: 100px;
     background-color: #FFFFFF;
     margin: 3px 3px;
     padding: 4px 8px;
@@ -362,6 +363,7 @@ const ButtonWrapper = styled.div`
     width: 100%;
     height: 50px;
     justify-content: flex-end;
+    align-items: flex-end;
 `
 
 const Button = styled.button`
@@ -401,7 +403,7 @@ const Cancel = styled.button`
 
 const DayWrapper = styled.div`
     display: flex;
-    align-items: flex-start;
+    align-items: flex-end;
     width: 90%;
     height: 50px;
     box-sizing: border-box;

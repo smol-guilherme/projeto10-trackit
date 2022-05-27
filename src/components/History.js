@@ -17,6 +17,8 @@ const HISTORY_URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/
 export default function History() {
     const { userContext, setUserContext } = useContext(UserContext);
     const [progressHistory, setProgressHistory] = useState([])
+    const [dayClick, setDayClick] = useState(false)
+    const [dayIndex, setDayIndex] = useState(0);
 
     useEffect(() => {
         let dataToken;
@@ -65,6 +67,43 @@ export default function History() {
         return newProgress
     }
 
+    function HistoryOnClick(value) {
+        const dateMatch = dayjs(value).format("DD/MM/YYYY")
+        let matchIndex;
+        progressHistory.map((history, index) => {
+            if(history.day.includes(dateMatch)) {
+                matchIndex = index;
+            }
+            return history;
+        })
+        if(matchIndex !== undefined && dateMatch !== dayjs().format("DD/MM/YYYY")) {
+            setDayIndex(matchIndex)
+            setDayClick(true)
+        }
+    }
+
+    const ListHightlight = (() => {
+        const dayToShow = progressHistory[dayIndex].habits
+        return(
+            <List>
+                <Template>Pressione qualquer cartão para voltar à agenda</Template>
+                { dayToShow.map((task, index) => <Task key={index} task={task} /> )}
+            </List>
+        )
+    })
+
+    function Task({ task }) {
+        const { done, name } = task
+        return(
+            <CardWrapper onClick={() => setDayClick(false)}>
+                <Card>
+                    <Title>{name}</Title>
+                </Card>
+                <Icon colorPicker={done}><ion-icon name="checkbox"></ion-icon></Icon>
+            </CardWrapper>
+        )
+    }
+
     function displayProgress(date) {
         const dateMatch = dayjs(date).format("DD/MM/YYYY")
         let returnFlag = false;
@@ -81,32 +120,19 @@ export default function History() {
         return <DaysHabit hasHabit={false} >{dayjs(date).format("D")}</DaysHabit>
     }
 
-    // function getProgress(config) {
-    //     const promise = axios.get(URL+ROUTE_TODAY, config)
-    //     promise.then((res) => {
-    //         const count = res.data.filter((item) =>{
-    //             if (item.done) {
-    //                 return item
-    //             }
-    //             return null
-    //         })
-    //         const value = isNaN(Math.round((count.length/res.data.length)*100)) ? 0 : Math.round((count.length/res.data.length)*100)
-    //         setProgress(value)
-    //     });
-    // }
-
     const Display = (() => {
-        if(progressHistory.length > 0) {
+        if(!dayClick && progressHistory.length > 0) {
             return (
                 <CalendarWrapper
                     calendarType={"US"}
                     locale={"pt-br"}
-                    onClickDay={(value) => console.log(value)}
+                    onClickDay={(value) => HistoryOnClick(value)}
                     formatDay={(locale, date) => displayProgress(date)}
                 />)
-            } else {
-                return <Template>Em breve você poderá ver o histórico dos seus hábitos aqui!</Template>;
+            } else if(dayClick) {
+                return (<ListHightlight />);
             }
+            return <Template>Em breve você poderá ver o histórico dos seus hábitos aqui!</Template>;
         })
     
     return(
@@ -185,4 +211,55 @@ const CalendarWrapper = styled(Calendar)`
         height: 50px;
         padding: 10px;
     }
+`
+
+const List = styled.ul`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    margin: 5px 0;
+    justify-content: flex-start;
+    align-items: center;
+    overflow-y: scroll;
+    z-index: 1;
+`
+
+const CardWrapper = styled.li`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 95%;
+    min-height: 100px;
+    background-color: #FFFFFF;
+    margin: 3px 3px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    box-sizing: border-box;
+`
+
+const Card = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    width: 90%;
+    min-height: 35px;
+    margin: 10px 10px 5px 0;
+    padding: 3px 0;
+    box-sizing: border-box;
+`
+
+const Icon = styled.div`
+    width: 70px;
+    height: 70px;
+    font-size: 70px;
+    color: ${ ({ colorPicker }) => colorPicker ? '#8FC549' : "#BABABA" };
+`
+
+const Title = styled.h2`
+    display: flex;
+    margin-bottom: 10px;
+    font-size: 20px;
 `

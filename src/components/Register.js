@@ -19,6 +19,7 @@ export default function Register() {
 
     function userRegister(e) {
         e.preventDefault();
+        e.target.blur();
         const registry = { email: email, name: userName, image: picture, password: password }
         setInteract(true)
 
@@ -28,7 +29,7 @@ export default function Register() {
             toggleInputs();
             navigate("/")
         });
-        promise.catch((err) => alert("Este e-mail já foi cadastrado"));
+        promise.catch((err) => { alert("Este e-mail já foi cadastrado"); toggleInputs(); });
     }
 
     function toggleInputs() {

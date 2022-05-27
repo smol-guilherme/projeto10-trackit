@@ -32,6 +32,7 @@ export default function Home() {
 
     function handleSubmit(e) {
         e.preventDefault();
+        e.target.blur();
         const login = { email: email, password: password }
         userLogin(login);
     }
