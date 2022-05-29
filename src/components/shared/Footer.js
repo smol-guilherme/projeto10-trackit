@@ -1,5 +1,5 @@
 import { useContext, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import 'react-circular-progressbar/dist/styles.css';
 
@@ -11,12 +11,17 @@ const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits";
 const ROUTE_TODAY = "/today";
 
 export default function Footer() {
+    const navigate = useNavigate();
     const { progress, setProgress, userContext, setUserContext } = useContext(UserContext)
 
     useEffect(() => {
         let dataToken;
         if(!userContext.hasOwnProperty("token")) {
             let data = localStorage.getItem("login")
+            if(data === null) {
+                navigate("/")
+                return
+            }
             data = JSON.parse(data)
             dataToken = data.token
             const newContext = { ...userContext }

@@ -14,19 +14,18 @@ export default function Home() {
     const navigate = useNavigate();
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const [interact, setInteract] = useState(false)
+    const [interact, setInteract] = useState(true)
 
     useEffect(() => {
         setUserContext({})
-        // const autoLogin = localStorage.getItem("login");
-        // if (autoLogin !== null) {
-        //     const parseUser = JSON.parse(autoLogin)
-        //     setEmail(parseUser.email)
-        //     setPassword(parseUser.password)
-        //     const login = { email: parseUser.email, password: parseUser.password }
-        //     userLogin(login);
-        // }
-
+        const autoLogin = localStorage.getItem("login");
+        if (autoLogin !== null) {
+            const parseUser = JSON.parse(autoLogin)
+            setEmail(parseUser.email)
+            setPassword(parseUser.password)
+            const login = { email: parseUser.email, password: parseUser.password }
+            userLogin(login);
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -39,9 +38,8 @@ export default function Home() {
 
     function userLogin(login) {
         const promise = axios.post(URL, login)
-        setInteract(true)
+        setInteract(false)
         promise.then((res) => {
-            toggleInputs();
             setUserContext( {
                 token: res.data.token,
                 image: res.data.image,
@@ -50,25 +48,17 @@ export default function Home() {
             localStorage.setItem("login", user)
             navigate("/hoje")
         })
-        promise.catch((err) => handleErr(err))
+        promise.catch((err) => { alert(err.response.data.message); toggleInputs(); })
     }
 
     function toggleInputs() {
-        setInteract(false);
+        setInteract(true);
         setEmail('');
         setPassword('');
     }
 
-    function handleErr(err) {
-        toggleInputs();
-        if(err.response.status === 401) {
-            return alert("Usuário ou senha incorretos")
-        }
-        return alert("Erro desconhecido")
-    }
-
     const IsLoading = (() => {
-        if(!interact) {
+        if(interact) {
             return (<Button type={'submit'} interact={interact}>Entrar</Button>)
         }
         return <Button><ThreeDots height="15px" width="60px" color="#FFFFFF" /></Button>
@@ -122,9 +112,9 @@ const InputWrapper = styled.form`
 
     input {
         display: flex;
-        pointer-events: ${ ({ interact }) => !interact ? 'auto' : 'none' };
-        background-color: ${ ({ interact }) => !interact ? '#FFFFFF' : '#F2F2F2' };
-        color: ${ ({ interact }) => !interact ? '#666666' : '#AFAFAF' };
+        pointer-events: ${ ({ interact }) => interact ? 'auto' : 'none' };
+        background-color: ${ ({ interact }) => interact ? '#FFFFFF' : '#F2F2F2' };
+        color: ${ ({ interact }) => interact ? '#666666' : '#AFAFAF' };
         width: 100%;
         height: 40px;
         margin: 5px 0;
@@ -148,7 +138,7 @@ const Button = styled.button`
     justify-content: center;
     align-items: center;
     text-align: center;
-    background-color: ${ ({ interact }) => !interact ? '#52B6FF' : '#52B6FF70' }; ;
+    background-color: ${ ({ interact }) => interact ? '#52B6FF' : '#52B6FF70' }; ;
     color: #FFFFFF;
     width: 100%;
     height: 40px;

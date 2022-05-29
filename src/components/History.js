@@ -2,6 +2,7 @@ import Header from './shared/Header';
 import Footer from './shared/Footer';
 
 import { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'
 
@@ -15,6 +16,7 @@ import UserContext from './context/UserContext';
 const HISTORY_URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/history/daily";
 
 export default function History() {
+    const navigate = useNavigate();
     const { userContext, setUserContext } = useContext(UserContext);
     const [progressHistory, setProgressHistory] = useState([])
     const [dayClick, setDayClick] = useState(false)
@@ -24,6 +26,10 @@ export default function History() {
         let dataToken;
         if(!userContext.hasOwnProperty("token")) {
             let data = localStorage.getItem("login")
+            if(data === null) {
+                navigate("/")
+                return
+            }
             data = JSON.parse(data)
             dataToken = data.token
             const newContext = { ...userContext }
@@ -45,7 +51,7 @@ export default function History() {
         promise.then((res) => {
             const newProgress = setProgressToDate(res.data)
             setProgressHistory(newProgress)
-        }).catch((err) => console.log(err.response.data))
+        }).catch((err) => alert(err.response.data.message))
     }
 
     function setProgressToDate(responseData) {

@@ -5,8 +5,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/trackit_logo.png"
 
-
-
 const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/sign-up"
 
 export default function Register() {
@@ -15,13 +13,13 @@ export default function Register() {
     const [password, setPassword] = useState('')
     const [userName, setUserName] = useState('')
     const [picture, setPicture] = useState('')
-    const [interact, setInteract] = useState(false)
+    const [interact, setInteract] = useState(true)
 
     function userRegister(e) {
         e.preventDefault();
         e.target.blur();
         const registry = { email: email, name: userName, image: picture, password: password }
-        setInteract(true)
+        setInteract(false)
 
         const promise = axios.post(URL, registry);
 
@@ -29,11 +27,11 @@ export default function Register() {
             toggleInputs();
             navigate("/")
         });
-        promise.catch((err) => { alert("Este e-mail já foi cadastrado"); setEmail(''); setInteract(false); });
+        promise.catch((err) => { alert(err.response.data.message); setEmail(''); setInteract(true); });
     }
 
     function toggleInputs() {
-        setInteract(false);
+        setInteract(true);
         setEmail('');
         setPassword('');
         setUserName('');
@@ -41,7 +39,7 @@ export default function Register() {
     }
 
     const IsLoading = (() => {
-        if(!interact) {
+        if(interact) {
             return (<Button type={'submit'} interact={interact}>Cadastrar</Button>)
         }
         return <Button><ThreeDots height="15px" width="60px" color="#FFFFFF" /></Button>
@@ -77,7 +75,7 @@ export default function Register() {
                     onChange={(e) => setPicture(e.target.value)}
                     type={'text'}
                     placeholder='foto'
-                    pattern={"^https?:\/\/(?:[a-z\-]+\.)+[a-z]{2,6}(?:\/[^\/#?]+)+\.(?:jpe?g|gif|png)$"}
+                    pattern={"^https?://(?:[a-z-]+.)+[a-z]{2,6}(?:/[^/#?]+)+.(?:jpe?g|gif|png)$"}
                     title={"Link de imagem terminado com formato de imagem (jpg, png, etc.)"}
                     required
                 />
@@ -136,7 +134,7 @@ const Button = styled.button`
     justify-content: center;
     align-items: center;
     text-align: center;
-    background-color: ${ ({ interact }) => !interact ? '#52B6FF' : '#52B6FF70' }; ;
+    background-color: ${ ({ interact }) => interact ? '#52B6FF' : '#52B6FF70' }; ;
     color: #FFFFFF;
     width: 100%;
     height: 40px;

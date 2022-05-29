@@ -3,6 +3,7 @@ import weekday from 'dayjs/plugin/weekday'
 import 'dayjs/locale/pt-br';
 
 import { useState, useEffect, useContext } from 'react'
+import { useNavigate } from 'react-router-dom';
 
 import Header from './shared/Header'
 import Footer from './shared/Footer'
@@ -35,14 +36,16 @@ function Task({ handleCheck, index, task }) {
 }
 
 export default function Track() {
+    const navigate = useNavigate();
     const { userContext, setUserContext } = useContext(UserContext);
 
     const [data, setData] = useState([]);
+    const [interact, setInteract] = useState(true);
     const [calendar, ] = useState(getDate);
 
     function getDate() {
         dayjs.extend(weekday)
-        const rawDate = dayjs().locale('pt-br').format("dddd, D/MM")
+        const rawDate = dayjs().locale('pt-br').format("dddd D/MM")
         return formatDate(rawDate)
     }
 
@@ -67,10 +70,15 @@ export default function Track() {
         let dataToken;
         if(!userContext.hasOwnProperty("token")) {
             let data = localStorage.getItem("login")
+            if(data === null) {
+                navigate("/")
+                return
+            }
             data = JSON.parse(data)
             dataToken = data.token
-            const newContext = { ...userContext }
-            setUserContext({ newContext, token: dataToken, image: data.image })
+            const userImg = data.image
+            const userToken = dataToken
+            setUserContext({ token: userToken, image: userImg })
         } else {
             dataToken = userContext.token
         }
@@ -86,10 +94,14 @@ export default function Track() {
         const promise = axios.get(URL+ROUTE_TODAY, config)
         promise.then((res) => {
             setData(res.data);
-        });
+        }).catch((err) => alert(err.response.data.message));
     }
 
     function handleCheck(taskIndex) {
+        if(!interact) {
+            return;
+        }
+        setInteract(false)
         const config = {
             headers: {
                 "Authorization": `Bearer ${userContext.token}`
@@ -98,8 +110,8 @@ export default function Track() {
         const reqData = {...data[taskIndex]}
         const route = reqData.done ? ROUTE_UNCHECK : ROUTE_CHECK
         const promise = axios.post(URL+`/${reqData.id}`+route, {}, config)
-        promise.then(() => getTodayData())
-        promise.catch((err) => { console.log(err.status.response); return})
+        promise.then(() => { getTodayData(); setInteract(true)})
+        promise.catch((err) => { alert(err.response.data.message); setInteract(true); })
     }
 
    function Progress() {

@@ -11,6 +11,7 @@ import 'dayjs/locale/pt-br';
 
 import Header from './shared/Header'
 import Footer from './shared/Footer'
+import { useNavigate } from 'react-router-dom';
 
 const URL = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits"
 
@@ -32,7 +33,7 @@ function NewHabit ({ IsLoading, form, title, setTitle, handleWeekday, create, se
                             key={index}
                             select={item.isSelected}
                             index={index}
-                            onClick={() => interact ? null : handleWeekday(index)}>
+                            onClick={() => interact ? handleWeekday(index) : null }>
                             {item.day}
                         </Day>
                 )}
@@ -46,13 +47,40 @@ function NewHabit ({ IsLoading, form, title, setTitle, handleWeekday, create, se
 }
 
 export default function Goals() {
+    const navigate = useNavigate();
     const { userContext, setUserContext } = useContext(UserContext);
-    const [interact, setInteract] = useState(false)
+    const [interact, setInteract] = useState(true)
     const [data, setData] = useState([]);
     const [create, setCreate] = useState(false)
     const [form, setForm] = useState(dayToText)
     const [title, setTitle] = useState('');
     
+    useEffect(() => {
+        let dataToken;
+        if(!userContext.hasOwnProperty("token")) {
+            let data = localStorage.getItem("login")
+            if(data === null) {
+                navigate("/")
+                return
+            }
+            data = JSON.parse(data)
+            dataToken = data.token
+            const newContext = { ...userContext }
+            setUserContext({ newContext, token: dataToken, image: data.image })
+        } else {
+            dataToken = userContext.token
+        }
+        const config = {
+            headers: {
+                "Authorization": `Bearer ${dataToken}`
+            }
+        }
+        const promise = axios.get(URL, config)
+        promise.then((res) => setData(res.data))
+        promise.catch((err) => alert(err.response.data.message))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
     function handleSubmit(e) {
         e.preventDefault();
         e.target.blur();
@@ -68,7 +96,7 @@ export default function Goals() {
             alert("Você precisa adicionar pelo menos um dia da semana");
             return;
         }
-        setInteract(true)
+        setInteract(false)
         const body = {
             name: title,
             days: days
@@ -87,9 +115,9 @@ export default function Goals() {
             setForm(dayToText)
             setCreate(false)
             setData(newData)
-            setInteract(false)
+            setInteract(true)
         })
-        promise.catch((err) => setInteract(false))
+        promise.catch((err) => { setInteract(true); alert(err.response.data.message)})
     }
 
     function handleWeekday(toggleIndex) {
@@ -117,7 +145,7 @@ export default function Goals() {
     }
 
     const IsLoading = (() => {
-        if(!interact) {
+        if(interact) {
             return (<Button type={'submit'} interact={interact}>Salvar</Button>)
         }
         return <Button><ThreeDots height="10px" width="45px" color="#FFFFFF" /></Button>
@@ -142,33 +170,11 @@ export default function Goals() {
                 }
                 return item
             })
-            setInteract(false)
+            setInteract(true)
             setData([...newData])
         })
-        promise.catch((err) => { console.log(err.response.status); setInteract(false); })
+        promise.catch((err) => { alert(err.response.data.message); setInteract(false); })
     }
-
-    useEffect(() => {
-        let dataToken;
-        if(!userContext.hasOwnProperty("token")) {
-            let data = localStorage.getItem("login")
-            data = JSON.parse(data)
-            dataToken = data.token
-            const newContext = { ...userContext }
-            setUserContext({ newContext, token: dataToken, image: data.image })
-        } else {
-            dataToken = userContext.token
-        }
-        const config = {
-            headers: {
-                "Authorization": `Bearer ${dataToken}`
-            }
-        }
-        const promise = axios.get(URL, config)
-        promise.then((res) => setData(res.data))
-        promise.catch((err) => console.log(err.status.response))
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
 
     const SelectedDays = (({ days }) => {
         const components = []
@@ -341,9 +347,9 @@ const InputWrapper = styled.form`
         font-family: 'Lexend Deca';
         font-size: 20px;
         display: flex;
-        pointer-events: ${ ({ interact }) => !interact ? 'auto' : 'none' };
-        background-color: ${ ({ interact }) => !interact ? '#FFFFFF' : '#F2F2F2' };
-        color: ${ ({ interact }) => !interact ? '#666666' : '#AFAFAF' };
+        pointer-events: ${ ({ interact }) => interact ? 'auto' : 'none' };
+        background-color: ${ ({ interact }) => interact ? '#FFFFFF' : '#F2F2F2' };
+        color: ${ ({ interact }) => interact ? '#666666' : '#AFAFAF' };
         width: 90%;
         height: 40px;
         margin: 10px 0;
@@ -353,7 +359,7 @@ const InputWrapper = styled.form`
         box-sizing: border-box;
 
         &::placeholder {
-            color: ${ ({ interact }) => !interact ? '#DBDBDB' : '#AFAFAF' };
+            color: ${ ({ interact }) => interact ? '#DBDBDB' : '#AFAFAF' };
         }
     }
 `
@@ -373,7 +379,7 @@ const Button = styled.button`
     justify-content: center;
     align-items: center;
     text-align: center;
-    background-color: ${ ({ interact }) => !interact ? '#52B6FF' : '#52B6FF70' }; ;
+    background-color: ${ ({ interact }) => interact ? '#52B6FF' : '#52B6FF70' }; ;
     width: 30%;
     height: 30px;
     margin: 3px 5% 3px 1%;
